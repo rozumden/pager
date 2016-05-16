@@ -49,24 +49,17 @@ int main() {
     writeBus(3, 0x7F);          // switch off beeper
 
 //----------- Our program ------------------------------
+    /*
     printf("Beep\n");
     writeBus(3, 0xFF);           // switch on beep
     usleep(1000000);            // wait 1 seccond
     printf("Beep stop\n");
     writeBus(3, 0x7F);           // switch off beep
+	*/
 
 	lcdText = (char *)malloc(sizeof(char) * 33);
-
-	//writeBus(BUS_LED_WR_o, 0);
-	//writeBus(BUS_LED_WR_o, 1);
-	//writeBus(BUS_LED_WR_o, 2);
-	//writeBus(BUS_LED_WR_o, 3);
-	//writeBus(BUS_LED_WR_o, 4);
-	//writeBus(BUS_LED_WR_o, 5);
-	for (int i = 0; i < 256; i++) {
-		
-	}
-	writeBus(BUS_LED_WR_o, 2);
+	initLCD();
+	writeIntoLCD("**** PAGER ****", 15);
 
 
 	while (isRunning) {
@@ -88,7 +81,7 @@ int main() {
 						switch (read) {
 							case -1:
 							case -2:
-								lcdText[lenOfText] = 95;	// '_'
+								lcdText[lenOfText] = 95;			// '_'
 								break;
 							case -3:
 								if (lenOfText >= 0) lenOfText -= 2;
@@ -108,9 +101,8 @@ int main() {
 				toDefaultMode();
 			}
 		}
-		usleep(200000);
+		usleep(150000);
 	}
-
 
     *(base+PCI_CTRL)=0x00;  // switch off device
     printf("\nDone\n");

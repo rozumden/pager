@@ -41,9 +41,9 @@ int readKeyboard() {
 	writeBus(3, 0);
 	unsigned char pressed = readBus(0);
 	if ((pressed & 0x1F) == 0x1F) return -5;
-	writeBus(3, 0xFF);
-	usleep(250000);
-	writeBus(3, 0x7F);
+	//writeBus(3, 0xFF);
+	//usleep(250000);
+	//writeBus(3, 0x7F);
 	return translateKey(pressed);
 }
 
@@ -61,12 +61,16 @@ int translateKey(int keyall) {
     // scan first column
     writeBus(BUS_KBD_WR_o, 0x4);
     if ((readBus(0) & 0x1F) == 0x1F) column = 1;
-	// scan second column
-	writeBus(BUS_KBD_WR_o, 0x2);
-	if ((readBus(0) & 0x1F) == 0x1F) column = 2;
-	// scan third column
-	writeBus(BUS_KBD_WR_o, 0x1);
-	if ((readBus(0) & 0x1F) == 0x1F) column = 3;
+	else {
+		// scan second column
+		writeBus(BUS_KBD_WR_o, 0x2);
+		if ((readBus(0) & 0x1F) == 0x1F) column = 2;
+		else {
+			// scan third column
+			writeBus(BUS_KBD_WR_o, 0x1);
+			if ((readBus(0) & 0x1F) == 0x1F) column = 3;
+		}
+	}
 	
 	printf("KEYALL: %d\n", keyall);
     printf("COLUMN: %d\n", column);
