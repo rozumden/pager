@@ -57,18 +57,6 @@ int main() {
 
 	lcdText = (char *)malloc(sizeof(char) * 33);
 
-	//writeBus(BUS_LED_WR_o, 0);
-	//writeBus(BUS_LED_WR_o, 1);
-	//writeBus(BUS_LED_WR_o, 2);
-	//writeBus(BUS_LED_WR_o, 3);
-	//writeBus(BUS_LED_WR_o, 4);
-	//writeBus(BUS_LED_WR_o, 5);
-	for (int i = 0; i < 256; i++) {
-		
-	}
-	writeBus(BUS_LED_WR_o, 2);
-
-
 	while (isRunning) {
 		if (inDefaultMode) {
 			// Default mode
