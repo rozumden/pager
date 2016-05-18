@@ -17,6 +17,8 @@ int readKeyboard();
 int isDigit(int c);
 int isValid(int c);
 int translateKey(int keyall);
+void beep(int miliseconds);
+void displayOnLED(int value);
 int writeBus(unsigned char adr, unsigned char value);
 unsigned char readBus(unsigned char adr);
 

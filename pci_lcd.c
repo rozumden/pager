@@ -28,7 +28,7 @@ void writeIntoLCD(char * str, int chars) {
         cursor = CHMOD_LCD_POS + offset;
         if (chars > 15) cursor += secondLineOffset;
 		writeBus(BUS_LCD_INST_o, cursor);
-	
+
         // Wait for the device
         while(CHMOD_LCD_BF == readBus(BUS_LCD_INST_o)) usleep(1000);
 
@@ -41,10 +41,10 @@ int readKeyboard() {
 	writeBus(3, 0);
 	unsigned char pressed = readBus(0);
 	if ((pressed & 0x1F) == 0x1F) return -5;
-	//writeBus(3, 0xFF);
-	//usleep(250000);
-	//writeBus(3, 0x7F);
-	return translateKey(pressed);
+	int result = translateKey(pressed);
+	displayOnLED(result);
+	//beep(250);
+	return result;
 }
 
 int isDigit(int c) {
@@ -53,6 +53,31 @@ int isDigit(int c) {
 
 int isValid(int c) {
 	return c >= -4 && c <= 9;
+}
+
+void beep(int miliseconds) {
+    writeBus(3, 0xFF);
+    usleep(miliseconds * 1000);
+    writeBus(3, 0x7F);
+}
+
+void displayOnLED(int value) {
+    switch (value) {
+        case -1:
+        case -2:
+            writeBus(BUS_LED_WR_o, 15);
+            break;
+        case -3:
+            writeBus(BUS_LED_WR_o, 240);
+            break;
+        case -4:
+            writeBus(BUS_LED_WR_o, 255);
+            break;
+        default:
+            if (isDigit(value)) {
+                writeBus(BUS_LED_WR_o, value);
+            }
+    }
 }
 
 int translateKey(int keyall) {
@@ -71,7 +96,7 @@ int translateKey(int keyall) {
 			if ((readBus(0) & 0x1F) == 0x1F) column = 3;
 		}
 	}
-	
+
 	printf("KEYALL: %d\n", keyall);
     printf("COLUMN: %d\n", column);
 	switch (keyall) {

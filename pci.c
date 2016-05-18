@@ -20,13 +20,13 @@ void toDefaultMode() {
 	lcdText[lenOfText] = '\0';
 	printf("Input sequence: %s\n", lcdText);
 	lenOfText = 0;
-	initLCD();	
+	initLCD();
 }
 void toMessageMode() {
 	puts("Switching from default mode.");
 	inDefaultMode = 0;
 	lenOfText = 0;
-	clock_gettime(CLOCK_REALTIME, &stopwatch);	
+	clock_gettime(CLOCK_REALTIME, &stopwatch);
 }
 
 int main() {
@@ -49,13 +49,9 @@ int main() {
     writeBus(3, 0x7F);          // switch off beeper
 
 //----------- Our program ------------------------------
-    /*
-    printf("Beep\n");
-    writeBus(3, 0xFF);           // switch on beep
-    usleep(1000000);            // wait 1 seccond
-    printf("Beep stop\n");
-    writeBus(3, 0x7F);           // switch off beep
-	*/
+
+    printf("Device started.");
+    //beep(1000);
 
 	lcdText = (char *)malloc(sizeof(char) * 33);
 	initLCD();
@@ -77,7 +73,7 @@ int main() {
 				} else {
 					if (lenOfText > 31) {
 						if (read == -3) lenOfText--;
-					} else {			
+					} else {
 						switch (read) {
 							case -1:
 							case -2:
@@ -90,7 +86,7 @@ int main() {
 								lcdText[lenOfText] = read + 48;		// 0-9
 						}
 						lenOfText++;
-						initLCD();					
+						initLCD();
 						writeIntoLCD(lcdText, lenOfText);
 					}
 				}
