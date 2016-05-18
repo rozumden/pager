@@ -35,3 +35,21 @@ int connectToServer(int pager_id, char * address, int port) {
 	return socketfd;
 }
 
+void * messageReceiver(void * socketfd) {
+	int sockfd = *(int *)socketfd; 
+	FILE *sockFile = (FILE *)fdopen(sockfd, "r");
+	int running = 1;
+
+	while (running) {
+		int id, message;
+		char * buffer;
+		int loaded = fscanf(sockFile, "%s %d %d", &buffer, &id, &message)
+		if (loaded == 3) {
+			// zpracuj zpravu
+			printf("%s %d %d\n", buffer, id, message);
+		} else {
+			printf("Could only load %d", loaded);
+		}
+		usleep(2000000);
+	}
+}
