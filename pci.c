@@ -29,7 +29,16 @@ void toMessageMode() {
 	clock_gettime(CLOCK_REALTIME, &stopwatch);
 }
 
-int main() {
+int main(int agrc, char ** argv) {
+	if (argc == 3) {
+		int ID = atoi(argv[1]);
+		char * IPaddr = (char *)malloc(sizeof(char) * 16;
+		strcpy(IPaddr, argv[2]);
+	} else {
+		int ID = 10;
+		char * IPaddr = "127.0.0.1";
+	}
+	
     int soubor = open("/dev/mem", O_RDWR | O_SYNC);
     if(soubor == -1) {
         printf("Failure to open dev/mem\n");
