@@ -20,13 +20,15 @@ void initLCD() {
 }
 
 void writeIntoLCD(char * str, int chars) {
-	int secondLineOffset = 0x40;
 	int cursor;
 
     for (int offset = 0; offset < chars; offset++) {
         // Set cursor to position (default + offset + line)
         cursor = CHMOD_LCD_POS + offset;
-        if (chars > 15) cursor += secondLineOffset;
+        if (chars > 15) {
+			cursor += 0x40;
+			offset -= 16;
+		}
 		writeBus(BUS_LCD_INST_o, cursor);
 
         // Wait for the device
@@ -42,8 +44,7 @@ int readKeyboard() {
 	unsigned char pressed = readBus(0);
 	if ((pressed & 0x1F) == 0x1F) return -5;
 	int result = translateKey(pressed);
-	displayOnLED(result);
-	//beep(250);
+	//displayOnLED(result);
 	return result;
 }
 

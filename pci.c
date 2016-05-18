@@ -80,7 +80,7 @@ int main() {
 								lcdText[lenOfText] = 95;			// '_'
 								break;
 							case -3:
-								if (lenOfText >= 0) lenOfText -= 2;
+								if (lenOfText >= 0) lenOfText -= 2; // erase last character
 								break;
 							default:
 								lcdText[lenOfText] = read + 48;		// 0-9
@@ -91,6 +91,7 @@ int main() {
 					}
 				}
 				clock_gettime(CLOCK_REALTIME, &stopwatch);
+				usleep(200000); // beep(200000);
 			}
 			clock_gettime(CLOCK_REALTIME, &current);
 			if ((current.tv_sec - stopwatch.tv_sec) > 29) {
@@ -100,7 +101,7 @@ int main() {
 		usleep(150000);
 	}
 
-    *(base+PCI_CTRL)=0x00;  // switch off device
+    *(base+PCI_CTRL) = 0x00;  // switch off device
     printf("\nDone\n");
     return 0;
 }
