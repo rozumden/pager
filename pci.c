@@ -57,7 +57,7 @@ int main(int agrc, char ** argv) {
     usleep(10);                 // wait for power up
     writeBus(3, 0x7F);          // switch off beeper
 
-//----------- Our program ------------------------------
+//----------- Our program --------------------------
 
     printf("Device started.");
     //beep(1000);
@@ -66,6 +66,12 @@ int main(int agrc, char ** argv) {
 	initLCD();
 	writeIntoLCD("**** PAGER ****", 15);
 
+	int socket = connectToServer(ID, IPaddr);
+	if (socket == -1) {
+		perror("Cannot connect to server.");
+	}
+	//pthread_t clientThread;
+	//pthread_create(&clientThread, NULL, jmeno_funkce_kde_zacne_vlakno, &socket);
 
 	while (isRunning) {
 		if (inDefaultMode) {
@@ -73,12 +79,14 @@ int main(int agrc, char ** argv) {
 			if (isDigit(readKeyboard())) {
 				toMessageMode();
 			}
+			// ZDE KONTROLOVAT ZDA PRISLA ZPRAVU - BUDE PATRNE NUTNE V JINEM VLAKNE A JEN KONTROLOVAT PROMENNOU
 		} else {
 			// Message mode
 			int read = readKeyboard();
 			if (isValid(read)) {
 				if (read == -4) {
 					toDefaultMode();
+					// ZDE ODESLAT ZPRAVU NA SERVER
 				} else {
 					if (lenOfText > 31) {
 						if (read == -3) lenOfText--;

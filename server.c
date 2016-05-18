@@ -7,10 +7,8 @@
 #include <pthread.h>
 #include "server.h"
 
-int socket;
-
-int connect(int pager_id, char * address, int port = 55556) {
-	socket = socket(AF_INET, SOCK_STREAM, 0);
+int connectToServer(int pager_id, char * address, int port = 55556) {
+	int socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket < 0) {
 		perror("Socket cannot be created");
 		return -1;
