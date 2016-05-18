@@ -25,9 +25,8 @@ void writeIntoLCD(char * str, int chars) {
     for (int offset = 0; offset < chars; offset++) {
         // Set cursor to position (default + offset + line)
         cursor = CHMOD_LCD_POS + offset;
-        if (chars > 15) {
-			cursor += 0x40;
-			offset -= 16;
+        if (offset > 15) {
+			cursor += 0x30;
 		}
 		writeBus(BUS_LCD_INST_o, cursor);
 
@@ -41,10 +40,22 @@ void writeIntoLCD(char * str, int chars) {
 
 int readKeyboard() {
 	writeBus(3, 0);
-	unsigned char pressed = readBus(0);
-	if ((pressed & 0x1F) == 0x1F) return -5;
-	int result = translateKey(pressed);
-	//displayOnLED(result);
+	unsigned char pressed1 = readBus(0);
+	if ((pressed1 & 0x1F) == 0x1F) return -5;
+	
+	usleep(50000);
+	
+	writeBus(3, 0);
+	unsigned char pressed2 = readBus(0);
+	if ((pressed2 & 0x1F) == 0x1F) return -5;
+	
+	int result;
+	if (pressed1 == pressed2) {
+		result = translateKey(pressed1);
+	} else {
+		return -5;
+	}
+	displayOnLED(result);
 	return result;
 }
 
@@ -86,14 +97,17 @@ int translateKey(int keyall) {
 
     // scan first column
     writeBus(BUS_KBD_WR_o, 0x4);
+    usleep(1000);
     if ((readBus(0) & 0x1F) == 0x1F) column = 1;
 	else {
 		// scan second column
 		writeBus(BUS_KBD_WR_o, 0x2);
+		usleep(1000);
 		if ((readBus(0) & 0x1F) == 0x1F) column = 2;
 		else {
 			// scan third column
 			writeBus(BUS_KBD_WR_o, 0x1);
+			usleep(1000);
 			if ((readBus(0) & 0x1F) == 0x1F) column = 3;
 		}
 	}

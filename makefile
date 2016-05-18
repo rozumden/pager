@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=gnu99 -Wall -pthread
+CFLAGS=-std=gnu99 -pthread
 
 test: pci.o pci_lcd.o server.o
 	$(CC) $(CFLAGS) $^ -o $@

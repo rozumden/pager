@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include <time.h>    //clock_nanosleep
 #include <unistd.h>  //usleep
+#include <string.h>
+#include "server.h"
 #include "pci.h"
 #include "pci_lcd.h"
 #include "kbd_hw.h"
@@ -29,14 +31,16 @@ void toMessageMode() {
 	clock_gettime(CLOCK_REALTIME, &stopwatch);
 }
 
-int main(int agrc, char ** argv) {
+int main(int argc, char ** argv) {
+	int ID;
+	char * IPaddr;
 	if (argc == 3) {
-		int ID = atoi(argv[1]);
-		char * IPaddr = (char *)malloc(sizeof(char) * 16;
+		ID = atoi(argv[1]);
+		IPaddr = (char *)malloc(sizeof(char) * 16);
 		strcpy(IPaddr, argv[2]);
 	} else {
-		int ID = 10;
-		char * IPaddr = "127.0.0.1";
+		ID = 10;
+		IPaddr = "127.0.0.1";
 	}
 	
     int soubor = open("/dev/mem", O_RDWR | O_SYNC);
@@ -66,7 +70,7 @@ int main(int agrc, char ** argv) {
 	initLCD();
 	writeIntoLCD("**** PAGER ****", 15);
 
-	int socket = connectToServer(ID, IPaddr);
+	int socket = connectToServer(ID, IPaddr, 55556);
 	if (socket == -1) {
 		perror("Cannot connect to server.");
 	}
@@ -115,7 +119,7 @@ int main(int agrc, char ** argv) {
 				toDefaultMode();
 			}
 		}
-		usleep(150000);
+		usleep(10000);
 	}
 
     *(base+PCI_CTRL) = 0x00;  // switch off device

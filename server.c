@@ -2,14 +2,17 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 #include <pthread.h>
 #include "server.h"
 
-int connectToServer(int pager_id, char * address, int port = 55556) {
-	int socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (socket < 0) {
+int connectToServer(int pager_id, char * address, int port) {
+	int socketfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (socketfd < 0) {
 		perror("Socket cannot be created");
 		return -1;
 	}
@@ -19,16 +22,16 @@ int connectToServer(int pager_id, char * address, int port = 55556) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 	if (inet_pton(AF_INET, address, &server.sin_addr) != 1) {
-		close(socket);
+		close(socketfd);
 		perror("invalid address family or IP address");
 		return -1;
 	}
 	
-	if (connect(socket, (struct sockaddr *) &server, sizeof(server)) != 0) {
+	if (connect(socketfd, (struct sockaddr *) &server, sizeof(server)) != 0) {
 		perror("Unable to connect to server.");
 		return -1;
 	}
 	
-	return socket;
+	return socketfd;
 }
 
