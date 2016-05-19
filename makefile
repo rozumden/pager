@@ -3,10 +3,10 @@ CFLAGS=-std=gnu99 -pthread
 
 test: pci.o pci_lcd.o server.o
 	$(CC) $(CFLAGS) $^ -o $@
-	
-server.o: server.c server.h
+
+klient.o: klient.c klient.h
 	$(CC) $(CFLAGS) -c $^
-	
+
 pci.o: pci.c pci.h
 	$(CC) $(CFLAGS) -c $^
 

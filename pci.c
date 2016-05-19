@@ -5,7 +5,7 @@
 #include <time.h>    //clock_nanosleep
 #include <unistd.h>  //usleep
 #include <string.h>
-#include "server.h"
+#include "klient.h"
 #include "pci.h"
 #include "pci_lcd.h"
 #include "kbd_hw.h"
@@ -42,7 +42,7 @@ int main(int argc, char ** argv) {
 		ID = 10;
 		IPaddr = "127.0.0.1";
 	}
-	
+
     int soubor = open("/dev/mem", O_RDWR | O_SYNC);
     if(soubor == -1) {
         printf("Failure to open dev/mem\n");
@@ -74,8 +74,8 @@ int main(int argc, char ** argv) {
 	if (socket == -1) {
 		perror("Cannot connect to server.");
 	}
-	//pthread_t clientThread;
-	//pthread_create(&clientThread, NULL, jmeno_funkce_kde_zacne_vlakno, &socket);
+	pthread_t clientThread;
+	pthread_create(&clientThread, NULL, messageReceiver, &socket);
 
 	while (isRunning) {
 		if (inDefaultMode) {

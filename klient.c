@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <string.h>
 #include <pthread.h>
-#include "server.h"
+#include "klient.h"
 
 int connectToServer(int pager_id, char * address, int port) {
 	int socketfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -16,7 +16,7 @@ int connectToServer(int pager_id, char * address, int port) {
 		perror("Socket cannot be created");
 		return -1;
 	}
-	
+
 	struct sockaddr_in server;
 	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
@@ -26,17 +26,17 @@ int connectToServer(int pager_id, char * address, int port) {
 		perror("invalid address family or IP address");
 		return -1;
 	}
-	
+
 	if (connect(socketfd, (struct sockaddr *) &server, sizeof(server)) != 0) {
 		perror("Unable to connect to server.");
 		return -1;
 	}
-	
+
 	return socketfd;
 }
 
 void * messageReceiver(void * socketfd) {
-	int sockfd = *(int *)socketfd; 
+	int sockfd = *(int *)socketfd;
 	FILE *sockFile = (FILE *)fdopen(sockfd, "r");
 	int running = 1;
 
