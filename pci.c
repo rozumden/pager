@@ -16,6 +16,8 @@ char * lcdText;
 int lenOfText;
 struct timespec stopwatch, current;
 
+volatile int hasReceived = 0;
+
 void toDefaultMode() {
 	puts("Sending message. Switching to default mode.");
 	inDefaultMode = 1;
@@ -24,11 +26,41 @@ void toDefaultMode() {
 	lenOfText = 0;
 	initLCD();
 }
+
 void toMessageMode() {
 	puts("Switching from default mode.");
 	inDefaultMode = 0;
 	lenOfText = 0;
 	clock_gettime(CLOCK_REALTIME, &stopwatch);
+}
+
+void initPager() {
+    int soubor = open("/dev/mem", O_RDWR | O_SYNC);
+    if (soubor == -1) {
+        printf("Failure to open dev/mem\n");
+        return 1;
+    }
+
+    // TODO: you must find  DEV_ADDRESS constant and the length 0x10000 by searchung list of PCI devices
+    base = mmap(NULL, 0x10000, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, DEV_ADDRESS);
+    if (base == MAP_FAILED) {
+	   printf("Failure to map device\n");
+	   return 2;
+    }
+
+//-- Initialization of our device ------------------
+    *(base+PCI_CTRL) = 0x80;    // power up
+    usleep(10);                 // wait for power up
+    writeBus(3, 0x7F);          // switch off beeper
+
+//----------- Our program --------------------------
+
+    printf("Device started.\n");
+    //beep(1000);
+
+	lcdText = (char *)malloc(sizeof(char) * 33);
+	initLCD();
+	writeIntoLCD("**** PAGER ****", 15);
 }
 
 int main(int argc, char ** argv) {
@@ -43,32 +75,7 @@ int main(int argc, char ** argv) {
 		IPaddr = "127.0.0.1";
 	}
 
-    int soubor = open("/dev/mem", O_RDWR | O_SYNC);
-    if(soubor == -1) {
-        printf("Failure to open dev/mem\n");
-        return 1;
-    }
-
-    // TODO: you must find  DEV_ADDRESS constant and the length 0x10000 by searchung list of PCI devices
-    base = mmap(NULL, 0x10000, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, DEV_ADDRESS);
-    if(base == MAP_FAILED) {
-	   printf("Failure to map device\n");
-	   return 2;
-    }
-
-//-- Initialization of our device ------------------
-    *(base+PCI_CTRL) = 0x80;    // power up
-    usleep(10);                 // wait for power up
-    writeBus(3, 0x7F);          // switch off beeper
-
-//----------- Our program --------------------------
-
-    printf("Device started.");
-    //beep(1000);
-
-	lcdText = (char *)malloc(sizeof(char) * 33);
-	initLCD();
-	writeIntoLCD("**** PAGER ****", 15);
+    isRunning = 0;//initPager();
 
 	int socket = connectToServer(ID, IPaddr, 55556);
 	if (socket == -1) {
@@ -77,6 +84,8 @@ int main(int argc, char ** argv) {
 	pthread_t clientThread;
 	pthread_create(&clientThread, NULL, messageReceiver, &socket);
 
+    usleep(1000000 * 300); // wait 5 minutes
+
 	while (isRunning) {
 		if (inDefaultMode) {
 			// Default mode
@@ -84,6 +93,9 @@ int main(int argc, char ** argv) {
 				toMessageMode();
 			}
 			// ZDE KONTROLOVAT ZDA PRISLA ZPRAVU - BUDE PATRNE NUTNE V JINEM VLAKNE A JEN KONTROLOVAT PROMENNOU
+            if (hasReceived) {
+                hasReceived = 0;
+            }
 		} else {
 			// Message mode
 			int read = readKeyboard();

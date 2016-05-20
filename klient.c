@@ -1,15 +1,16 @@
-#include <sys/socket.h>
+/*#include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
-#include <netinet/in.h>
+#include <netinet/in.h>*/
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include "klient.h"
 
+/*
 int connectToServer(int pager_id, char * address, int port) {
 	int socketfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (socketfd < 0) {
@@ -34,22 +35,40 @@ int connectToServer(int pager_id, char * address, int port) {
 
 	return socketfd;
 }
-
+*/
 void * messageReceiver(void * socketfd) {
+	/*
 	int sockfd = *(int *)socketfd;
 	FILE *sockFile = (FILE *)fdopen(sockfd, "r");
+	*/
 	int running = 1;
 
 	while (running) {
-		int id, message;
-		char * buffer;
-		int loaded = fscanf(sockFile, "%s %d %d", &buffer, &id, &message)
-		if (loaded == 3) {
+		int id, first, second;
+		char buffer[256];
+		int loaded = /*f*/scanf(/*sockFile, */"%s %d %d %d", &buffer, &id, &first, &second);
+		if (loaded == 4) {
 			// zpracuj zpravu
-			printf("%s %d %d\n", buffer, id, message);
+			printf("%s %d %d %d\n", buffer, id, first, second);
+			if (strcmp(buffer, "sendmessage_r")) {
+                printf("Match.\n");
+			}
 		} else {
-			printf("Could only load %d", loaded);
+			printf("Could only load %d\n", loaded);
 		}
-		usleep(2000000);
+		usleep(1000000 * 2);
 	}
+}
+
+// testovaci main
+int main() {
+    messageReceiver(0);
+    //int socket = 0;
+    //pthread_t clientThread;
+	//pthread_create(&clientThread, NULL, messageReceiver, &socket);
+
+
+
+
+    return 0;
 }
