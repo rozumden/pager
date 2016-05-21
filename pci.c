@@ -27,7 +27,7 @@ volatile int senderID;
 volatile int messageReceived;
 volatile int isWaiting = 0;
 
-volatile int threadsRunning = 1;
+volatile int threadsRunning;
 
 void toDefaultMode() {
 	puts("Sending message. Switching to default mode.");
@@ -73,6 +73,7 @@ void initPager() {
 	lcdText = (char *)malloc(sizeof(char) * 33);
 	writeIntoLCD("**** PAGER ****", 15);
 }
+
 void uploadMessage(int sender, int message) {
 
     pthread_mutex_lock(&messageLock);
@@ -83,6 +84,7 @@ void uploadMessage(int sender, int message) {
 
     pthread_mutex_unlock(&messageLock);
 }
+
 struct message getMessage() {
     struct message m;
     pthread_mutex_lock(&messageLock);
@@ -94,6 +96,30 @@ struct message getMessage() {
     pthread_mutex_unlock(&messageLock);
 
     return m;
+}
+
+void * keyboardListener() {
+    int run = 1;
+    char * window = (char *)malloc(sizeof(char) * 3);
+
+    window[0] = getchar();
+    window[1] = getchar();
+
+    while (run && threadsRunning) {
+        window[2] = getchar();
+
+        if (window[0] == 'e' && window[1] == 'n' && window[2] == 'd') {
+            isRunning = threadsRunning = run = 0;
+        }
+
+        window[0] = window[1];
+        window[1] = window[2];
+    }
+    printf("Closing keyboard listener.\n");
+}
+
+int areThreadsRunning() {
+    return threadsRunning;
 }
 
 int main(int argc, char ** argv) {
@@ -114,10 +140,16 @@ int main(int argc, char ** argv) {
 	if (socket == -1) {
 		perror("Cannot connect to server.");
 	}
+
+	threadsRunning = 1;
 	pthread_t clientThread;
 	pthread_create(&clientThread, NULL, messageReceiver, &socket);
+	pthread_t keyboardThread;
+	pthread_create(&keyboardThread, NULL, keyboardListener, NULL);
 
-    usleep(1000000 * 600); // wait 10 minutes
+    //usleep(1000000 * 600); // wait 10 minutes
+    usleep(1000000 * 10);
+    usleep(300000);
 
 	while (isRunning) {
 		if (inDefaultMode) {
@@ -135,7 +167,7 @@ int main(int argc, char ** argv) {
                     char * text = (char *)malloc(sizeof(char) * 16);
                     sprintf(text, "%d %d", m.senderID, m.messageReceived);
                     writeIntoLCD(text, strlen(text));
-                    printf("NA LCD: %s\n", text)
+                    printf("NA LCD: %s\n", text);
                 }
             }
             // Send server querry every 5 seconds
@@ -200,11 +232,13 @@ int main(int argc, char ** argv) {
 	printf("Closing application...\n");
     threadsRunning = 0;
     close(socket);
-    usleep(7000000);
-    pthread_join(clientThread, NULL);
+    close(0);
+    pthread_join(keyboardThread, NULL);
+    pthread_cancel(clientThread);
+
     // switch off device
-    *(base+PCI_CTRL) = 0x00;
-    printf("\nDone\n");
+    //*(base+PCI_CTRL) = 0x00;
+    puts("\nDone\n");
     return EXIT_SUCCESS;
 }
 

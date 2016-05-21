@@ -6,15 +6,10 @@
 //DEV_ADDRESS is result of: lspci -nn -v -d 1172:1f32 (pøes /proc/bus/pci)
 // It is necessary to check by your program
 
-#define _GNU_SOURCE
-
-#ifndef CLOCK_MONOTONIC
-#define CLOCK_MONOTONIC 1
-#endif
-
 unsigned char * base;
 
 void nanowait(long time_seconds, long time_nanoseconds);
 void uploadMessage(int sender, int message);
+int areThreadsRunning();
 
 #endif

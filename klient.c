@@ -43,13 +43,13 @@ void * messageReceiver(void * socketfd) {
 	int sockfd = *(int *)socketfd;
 	FILE *sockFile = (FILE *)fdopen(sockfd, "r");
 
-	while (threadsRunning) {
+	while (areThreadsRunning()) {
 		int first, second, third, message;
 		char buffer[BUFFERSIZE];
 		char token[BUFFERSIZE];
         char response[BUFFERSIZE];
 
-        //gets(buffer);
+        // Load line from sockFile stream
         fgets(buffer, sizeof(buffer), sockFile);
         printf("Server sent: %s\n", buffer);
 
@@ -72,31 +72,6 @@ void * messageReceiver(void * socketfd) {
 		if (strcmp(token, "sendmessage_r") == 0) {      // <token><pager_id><recipient_id><message_id>
             printf("Message received our message for %d.", second);
 		}
-
-		usleep(1000000*5);
 	}
+	printf("Closing message receiver.\n");
 }
-
-
-		//int loaded = /*f*/scanf(/*sockFile, */"%s %d %d %d %d %d", buffer, &first, &second, &third, &fourth, &fifth);
-		/*if (loaded == 4) {
-			// zpracuj zpravu
-			printf("%s %d %d %d %d \n", buffer, id, first, second);
-			if (strcmp(buffer, "sendmessage_r")) {
-                printf("Match.\n");
-			}
-		} else {
-			printf("Could only load %d\n", loaded);
-		}*/
-
-/*
-int main() {
-    int socket = connectToServer("127.0.0.1", 55556);
-    write(socket, "querrymessage 42\n", 17);
-    messageReceiver(&socket);
-
-
-
-    return 0;
-}
-/**/
