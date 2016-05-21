@@ -43,9 +43,7 @@ void * messageReceiver(void * socketfd) {
 	int sockfd = *(int *)socketfd;
 	FILE *sockFile = (FILE *)fdopen(sockfd, "r");
 
-	int running = 1;
-
-	while (running) {
+	while (threadsRunning) {
 		int first, second, third, message;
 		char buffer[BUFFERSIZE];
 		char token[BUFFERSIZE];
@@ -57,7 +55,6 @@ void * messageReceiver(void * socketfd) {
 
         // Extract token
         int loaded = sscanf(buffer, "%s %d %d %d %d", token, &first, &second, &third, &message);
-
 
 		if (strcmp(token, "querrymessage_r") == 0) {    // <token><pager_id><message_id><sender_id><message>
             if (loaded == 2) {
@@ -73,10 +70,10 @@ void * messageReceiver(void * socketfd) {
             printf("Message %d for %d confirmed\n", second, first);
 		}
 		if (strcmp(token, "sendmessage_r") == 0) {      // <token><pager_id><recipient_id><message_id>
-
+            printf("Message received our message for %d.", second);
 		}
 
-		usleep(1000000 * 5);
+		usleep(1000000*5);
 	}
 }
 
@@ -97,6 +94,8 @@ int main() {
     int socket = connectToServer("127.0.0.1", 55556);
     write(socket, "querrymessage 42\n", 17);
     messageReceiver(&socket);
+
+
 
     return 0;
 }

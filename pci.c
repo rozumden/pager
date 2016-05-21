@@ -27,6 +27,8 @@ volatile int senderID;
 volatile int messageReceived;
 volatile int isWaiting = 0;
 
+volatile int threadsRunning = 1;
+
 void toDefaultMode() {
 	puts("Sending message. Switching to default mode.");
 	inDefaultMode = 1;
@@ -34,6 +36,7 @@ void toDefaultMode() {
 	printf("Input sequence: %s\n", lcdText);
 	lenOfText = 0;
 	initLCD();
+	clock_gettime(CLOCK_REALTIME, &stopwatch);
 }
 
 void toMessageMode() {
@@ -68,7 +71,6 @@ void initPager() {
     //beep(1000);
 
 	lcdText = (char *)malloc(sizeof(char) * 33);
-	initLCD();
 	writeIntoLCD("**** PAGER ****", 15);
 }
 void uploadMessage(int sender, int message) {
@@ -123,10 +125,26 @@ int main(int argc, char ** argv) {
 			if (isDigit(readKeyboard())) {
 				toMessageMode();
 			}
-			// ZDE KONTROLOVAT ZDA PRISLA ZPRAVU - BUDE PATRNE NUTNE V JINEM VLAKNE A JEN KONTROLOVAT PROMENNOU
+			// Check whether message was received
             struct message m = getMessage();
             if (m.isWaiting) {
-                // ZOBRAZ ZPRAVU
+                // Display message
+                printf("Obtained message from server: %d %d\n", m.senderID, m.messageReceived);
+                if (m.messageReceived < 1000000 && m.messageReceived > -1
+                        && m.senderID < 1000 && m.senderID > -1) {
+                    char * text = (char *)malloc(sizeof(char) * 16);
+                    sprintf(text, "%d %d", m.senderID, m.messageReceived);
+                    writeIntoLCD(text, strlen(text));
+                    printf("NA LCD: %s\n", text)
+                }
+            }
+            // Send server querry every 5 seconds
+            clock_gettime(CLOCK_REALTIME, &current);
+            if ((current.tv_sec - stopwatch.tv_sec) > 4) {
+                clock_gettime(CLOCK_REALTIME, &stopwatch);
+                char * querry = (char *)malloc(sizeof(char) * 64);
+                sprintf(querry, "querrymessage %d\n", ID);
+                write(socket, querry, strlen(querry));
             }
 		} else {
 			// Message mode
@@ -134,7 +152,20 @@ int main(int argc, char ** argv) {
 			if (isValid(read)) {
 				if (read == -4) {
 					toDefaultMode();
-					// ZDE ODESLAT ZPRAVU NA SERVER
+					// Send recipient and message to server
+					int rec, mes;
+                    int loaded = sscanf(lcdText, "%d %d", &rec, &mes);
+                    if (loaded == 2 && rec > -1 && rec < 1000 && mes > -1 && mes < 1000000) {
+                        char * text = (char *)malloc(sizeof(char) * 64);
+                        sprintf(text, "sendmessage %d %d %d\n", ID, rec, mes);
+                        write(socket, text, strlen(text));
+                    } else {
+                        printf("Given message has invalid format.");
+                        char * text = (char *)malloc(sizeof(char) * 16);
+                        sprintf(text, "Invalid");
+                        writeIntoLCD(text, strlen(text));
+                        beep(500);
+                    }
 				} else {
 					if (lenOfText > 31) {
 						if (read == -3) lenOfText--;
@@ -151,12 +182,11 @@ int main(int argc, char ** argv) {
 								lcdText[lenOfText] = read + 48;		// 0-9
 						}
 						lenOfText++;
-						initLCD();
 						writeIntoLCD(lcdText, lenOfText);
 					}
 				}
 				clock_gettime(CLOCK_REALTIME, &stopwatch);
-				usleep(200000); // beep(200000);
+				usleep(200000); //beep(200000);
 			}
 			clock_gettime(CLOCK_REALTIME, &current);
 			if ((current.tv_sec - stopwatch.tv_sec) > 29) {
@@ -166,9 +196,16 @@ int main(int argc, char ** argv) {
 		usleep(10000);
 	}
 
-    *(base+PCI_CTRL) = 0x00;  // switch off device
+	// join thread
+	printf("Closing application...\n");
+    threadsRunning = 0;
+    close(socket);
+    usleep(7000000);
+    pthread_join(clientThread, NULL);
+    // switch off device
+    *(base+PCI_CTRL) = 0x00;
     printf("\nDone\n");
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void nanowait(long time_seconds, long time_nanoseconds) {

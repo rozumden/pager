@@ -3,6 +3,7 @@ CFLAGS=-std=gnu99 -pthread
 
 test: pci.o pci_lcd.o klient.o
 	$(CC) $(CFLAGS) $^ -o $@
+	make clean
 
 klient.o: klient.c klient.h
 	$(CC) $(CFLAGS) -c $^

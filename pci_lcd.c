@@ -21,6 +21,7 @@ void initLCD() {
 
 void writeIntoLCD(char * str, int chars) {
 	int cursor;
+	initLCD();
 
     for (int offset = 0; offset < chars; offset++) {
         // Set cursor to position (default + offset + line)
@@ -42,13 +43,13 @@ int readKeyboard() {
 	writeBus(3, 0);
 	unsigned char pressed1 = readBus(0);
 	if ((pressed1 & 0x1F) == 0x1F) return -5;
-	
+
 	usleep(50000);
-	
+
 	writeBus(3, 0);
 	unsigned char pressed2 = readBus(0);
 	if ((pressed2 & 0x1F) == 0x1F) return -5;
-	
+
 	int result;
 	if (pressed1 == pressed2) {
 		result = translateKey(pressed1);
