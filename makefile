@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-std=gnu99 -pthread
 
-test: pci.o pci_lcd.o server.o
+test: pci.o pci_lcd.o klient.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 klient.o: klient.c klient.h
@@ -17,7 +17,7 @@ clean:
 	rm -f pci.o pci.h.gch
 	rm -f pci_lcd.o pci_lcd.h.gch
 	rm -f chmod_lcd.h.gch kbd_hw.h.gch
-	rm -f server.o server.h.gch
+	rm -f klient.o klient.h.gch
 
 cleanall:
 	make clean

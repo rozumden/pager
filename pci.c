@@ -5,6 +5,7 @@
 #include <time.h>    //clock_nanosleep
 #include <unistd.h>  //usleep
 #include <string.h>
+#include <pthread.h>
 #include "klient.h"
 #include "pci.h"
 #include "pci_lcd.h"
@@ -15,8 +16,16 @@ int isRunning = 1;
 char * lcdText;
 int lenOfText;
 struct timespec stopwatch, current;
+pthread_mutex_t messageLock;
 
-volatile int hasReceived = 0;
+struct message {
+    int messageReceived;
+    int senderID;
+    int isWaiting;
+};
+volatile int senderID;
+volatile int messageReceived;
+volatile int isWaiting = 0;
 
 void toDefaultMode() {
 	puts("Sending message. Switching to default mode.");
@@ -38,14 +47,14 @@ void initPager() {
     int soubor = open("/dev/mem", O_RDWR | O_SYNC);
     if (soubor == -1) {
         printf("Failure to open dev/mem\n");
-        return 1;
+        exit(1);
     }
 
     // TODO: you must find  DEV_ADDRESS constant and the length 0x10000 by searchung list of PCI devices
     base = mmap(NULL, 0x10000, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, DEV_ADDRESS);
     if (base == MAP_FAILED) {
 	   printf("Failure to map device\n");
-	   return 2;
+	   exit(2);
     }
 
 //-- Initialization of our device ------------------
@@ -62,6 +71,28 @@ void initPager() {
 	initLCD();
 	writeIntoLCD("**** PAGER ****", 15);
 }
+void uploadMessage(int sender, int message) {
+
+    pthread_mutex_lock(&messageLock);
+
+    senderID = sender;
+    messageReceived = message;
+    isWaiting = 1;
+
+    pthread_mutex_unlock(&messageLock);
+}
+struct message getMessage() {
+    struct message m;
+    pthread_mutex_lock(&messageLock);
+
+    m.senderID = senderID;
+    m.messageReceived = messageReceived;
+    m.isWaiting = isWaiting;
+
+    pthread_mutex_unlock(&messageLock);
+
+    return m;
+}
 
 int main(int argc, char ** argv) {
 	int ID;
@@ -75,16 +106,16 @@ int main(int argc, char ** argv) {
 		IPaddr = "127.0.0.1";
 	}
 
-    isRunning = 0;//initPager();
+    //initPager();
 
-	int socket = connectToServer(ID, IPaddr, 55556);
+	int socket = connectToServer(IPaddr, 55556);
 	if (socket == -1) {
 		perror("Cannot connect to server.");
 	}
 	pthread_t clientThread;
 	pthread_create(&clientThread, NULL, messageReceiver, &socket);
 
-    usleep(1000000 * 300); // wait 5 minutes
+    usleep(1000000 * 600); // wait 10 minutes
 
 	while (isRunning) {
 		if (inDefaultMode) {
@@ -93,8 +124,9 @@ int main(int argc, char ** argv) {
 				toMessageMode();
 			}
 			// ZDE KONTROLOVAT ZDA PRISLA ZPRAVU - BUDE PATRNE NUTNE V JINEM VLAKNE A JEN KONTROLOVAT PROMENNOU
-            if (hasReceived) {
-                hasReceived = 0;
+            struct message m = getMessage();
+            if (m.isWaiting) {
+                // ZOBRAZ ZPRAVU
             }
 		} else {
 			// Message mode
