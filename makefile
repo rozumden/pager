@@ -8,7 +8,7 @@ test: pci.o pci_lcd.o klient.o
 klient.o: klient.c klient.h
 	$(CC) $(CFLAGS) -c $^
 
-pci.o: pci.c pci.h
+pci.o: pci.c pci.h finder.h
 	$(CC) $(CFLAGS) -c $^
 
 pci_lcd.o: pci_lcd.c pci_lcd.h chmod_lcd.h kbd_hw.h
@@ -18,7 +18,7 @@ clean:
 	rm -f pci.o pci.h.gch
 	rm -f pci_lcd.o pci_lcd.h.gch
 	rm -f chmod_lcd.h.gch kbd_hw.h.gch
-	rm -f klient.o klient.h.gch
+	rm -f klient.o klient.h.gch finder.h.gch
 
 cleanall:
 	make clean

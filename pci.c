@@ -10,6 +10,7 @@
 #include "pci.h"
 #include "pci_lcd.h"
 #include "kbd_hw.h"
+#include "finder.h"
 
 int inDefaultMode = 1;
 int isRunning = 1;
@@ -54,7 +55,9 @@ void initPager() {
     }
 
     // TODO: you must find  DEV_ADDRESS constant and the length 0x10000 by searchung list of PCI devices
-    base = mmap(NULL, 0x10000, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, DEV_ADDRESS);
+    struct device d = findMe();
+    // base = mmap(NULL, 0x10000, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, DEV_ADDRESS);
+    base = mmap(NULL, d.length, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, d.address);
     if (base == MAP_FAILED) {
 	   printf("Failure to map device\n");
 	   exit(2);
@@ -135,7 +138,6 @@ int main(int argc, char ** argv) {
 	}
 
     //initPager();
-
 	int socket = connectToServer(IPaddr, 55556);
 	if (socket == -1) {
 		perror("Cannot connect to server.");
