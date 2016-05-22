@@ -35,7 +35,25 @@ Kamil \textsc{Svec}
 
 \end{center}
 
-\section{Description}
+\section{Introduction}
+The code is distributed into several files. Here we will describe each of them and the role they play.
 
+\section{pci.c}
+It is a starting point of the program, e.g. it has \textbf{main} function which has the main loop of the program. It calls all functions and is alternating between default mode and message mode. Also it starts all threads: for message receiving and keyboard listener, which is waiting until the user writes \textbf{end} in standard input and will finish the application. 
+
+\section{pci\_lcd.c}
+It is used for initiation of LCD display, writing to it, for reading from keyboard and displaying on LEDs. Also there are some helpers, such as make a beep, translating a key, writing data to bus, reading data from bus.
+
+\section{klient.c}
+This file makes working with a server easier. It provides functions for connection to the server and implements a listener for the message receiver. 
+
+\section{finder.h}
+The file provides function findMe() which will initiate everything for searching, and returns found device afterwards. Function \textbf{bfs} implements breadth-first search in given directory.
+
+\section{kbd\_hw.h}
+There definitions of mmaped\_8bit\_bus\_kbd hardware are defined.
+
+\section{chmod\_lcd.h}
+It's a file with control codes for two or four line character LCD modules.
 
 \end{document}
