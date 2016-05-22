@@ -1,0 +1,50 @@
+\documentclass[12pt]{article}
+\usepackage[english]{babel}
+
+\usepackage{graphicx}
+\usepackage[showframe=false]{geometry}
+\usepackage{amsfonts}
+
+\begin{document}
+
+\begin{center}
+\textsc{\LARGE Czech Technical University in Prague}\\[0.5cm]
+\textsc{\Large Faculty of electrical engineering}\\[0.5cm]
+\textsc{\Large Pager - User Guide}\\[0.5cm]
+\textsc{\large A0B36APO}\\[0.5cm]
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Author:}\\
+Denys \textsc{Rozumnyi} 
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Author:} \\
+Kamil \textsc{Svec}
+\end{flushright}
+\end{minipage}\\[0.5cm]
+
+
+\begin{center}
+{\large \today}
+\end{center}
+\end{center}
+
+\section{Description}
+This documentation provides user manual to PCIe card EVB/Altera DB4CGX15 software together with APO PagerCentral software. 
+
+\section{Start}
+First of all, you must run command \textbf{make}, which will compile the source code. Then you need to know server address or you can run your own using APO PagerCentral. Our program has two inputs:
+\begin{enumerate}
+\item Pager ID (default value $10$)
+\item Server address (default value $127.0.0.1$)
+\end{enumerate} 
+
+\section{Usage}
+When started the pager is in the stand-by state. In this state every 5 seconds it checks if there are any incoming messages on the server. If there is a message, the pager beeps and displays the message. The pager also allows to send a message to other pager in the system. While in stand-by mode, a user can press any key to enter the messaging mode. First he/she has to enter other pager's ID and then enter the message. So far the message consists only of numbers. Also you can remove numbers. 
+
+
+\end{document}
