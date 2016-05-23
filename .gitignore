@@ -1,5 +1,6 @@
 *.gch
 *.c~
+*.h~
 *.o
 test
 kli

@@ -76,7 +76,7 @@ struct device findMe() {
 		sprintf(temp, "%02X%02X%02X%02X", (unsigned char) buffer[1],(unsigned char) buffer[0],(unsigned char) buffer[3],(unsigned char) buffer[2]);
 	   	d.address = strtol(temp, NULL, 16);
 	    fseek(dev, 0, SEEK_END);
-	    d.length = ftell(dev);
+	    d.length = ftell(dev)*16;
 	    fseek(dev, 0, SEEK_SET);
 	} else {
 		perror("Cannot open device.");
