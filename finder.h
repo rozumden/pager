@@ -82,7 +82,7 @@ struct device findMe() {
 		perror("Cannot open device.");
 	}
 
-    fprintf(stdout, "Found path: %s, address %x, length: %x\n",d.path,(unsigned int) d.address, d.length);
+    if (verbose) fprintf(stdout, "Found path: %s, address %x, length: %x\n",d.path,(unsigned int) d.address, d.length);
     return d;
 }
 
