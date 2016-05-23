@@ -51,14 +51,13 @@ void * messageReceiver(void * socketfd) {
 
         // Load line from sockFile stream
         fgets(buffer, sizeof(buffer), sockFile);
-        printf("Server sent: %s\n", buffer);
 
         // Extract token
         int loaded = sscanf(buffer, "%s %d %d %d %d", token, &first, &second, &third, &message);
 
 		if (strcmp(token, "querrymessage_r") == 0) {    // <token><pager_id><message_id><sender_id><message>
             if (loaded == 2) {
-                // server has no message for us
+                // server has no message for us 
             } else {
                 sprintf(response, "confirmmessage %d %d\n", first, second);
                 write(sockfd, response, strlen(response));

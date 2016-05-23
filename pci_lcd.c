@@ -44,7 +44,7 @@ int readKeyboard() {
 	unsigned char pressed1 = readBus(0);
 	if ((pressed1 & 0x1F) == 0x1F) return -5;
 
-	usleep(50000);
+	beep(50);
 
 	writeBus(3, 0);
 	unsigned char pressed2 = readBus(0);
@@ -113,8 +113,8 @@ int translateKey(int keyall) {
 		}
 	}
 
-	printf("KEYALL: %d\n", keyall);
-    printf("COLUMN: %d\n", column);
+	//printf("KEYALL: %d\n", keyall);
+    //printf("COLUMN: %d\n", column);
 	switch (keyall) {
 		case 239:
 			if (column == 2) return -3;
