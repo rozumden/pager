@@ -57,7 +57,7 @@ void initPager() {
     // TODO: you must find  DEV_ADDRESS constant and the length 0x10000 by searchung list of PCI devices
     struct device d = findMe();
     //base = mmap(NULL, 0x10000, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, DEV_ADDRESS);
-    base = mmap(NULL, d.length, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, d.address);
+    base = mmap(NULL, 0x10000, PROT_WRITE | PROT_READ, MAP_SHARED, soubor, d.address);
     if (base == MAP_FAILED) {
 	   printf("Failure to map device\n");
 	   exit(2);
@@ -170,6 +170,7 @@ int main(int argc, char ** argv) {
                     sprintf(text, "%d %d", m.senderID, m.messageReceived);
                     writeIntoLCD(text, strlen(text));
                     printf("NA LCD: %s\n", text);
+	            beep(500);
                 }
             }
             // Send server querry every 5 seconds
