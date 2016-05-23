@@ -11,5 +11,6 @@ unsigned char * base;
 void nanowait(long time_seconds, long time_nanoseconds);
 void uploadMessage(int sender, int message);
 int areThreadsRunning();
+void noLED();
 
 #endif
