@@ -93,6 +93,10 @@ void displayOnLED(int value) {
     }
 }
 
+void noLED() {
+	writeBus(BUS_LED_WR_o, 0);
+}
+
 int translateKey(int keyall) {
     int column;
 
@@ -113,8 +117,6 @@ int translateKey(int keyall) {
 		}
 	}
 
-	//printf("KEYALL: %d\n", keyall);
-    //printf("COLUMN: %d\n", column);
 	switch (keyall) {
 		case 239:
 			if (column == 2) return -3;

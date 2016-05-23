@@ -162,6 +162,7 @@ int main(int argc, char ** argv) {
             struct message m = getMessage();
             if (m.isWaiting) {
                 // Display message
+                noLED();
                 printf("Obtained message from server: %d %d\n", m.senderID, m.messageReceived);
                 if (m.messageReceived < 1000000 && m.messageReceived > -1
                         && m.senderID < 1000 && m.senderID > -1) {
@@ -199,6 +200,7 @@ int main(int argc, char ** argv) {
                         writeIntoLCD(text, strlen(text));
                         beep(500);
                     }
+                    noLED();
 				} else {
 					if (lenOfText > 31) {
 						if (read == -3) lenOfText--;
